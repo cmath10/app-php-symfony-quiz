@@ -1,0 +1,21 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Quiz app | List{% endblock %}
+
+{% block body %}
+    <h1 class="my-3">Quiz list</h1>
+
+    {% for item in list %}
+        <div class="list-group">
+            <a href="{{ path('app_quiz_attempt', { id: item.id }) }}" class="list-group-item list-group-item-action">
+                <div class="d-flex w-100 justify-content-between">
+                    <h5 class="mb-1">{{ item.name }}</h5>
+                    <small class="text-muted">{{ item.questions.count }} questions</small>
+                </div>
+
+                <p class="mb-1">Later here will be a description.</p>
+                <small class="text-muted">Don't have any idea how to use this yet.</small>
+            </a>
+        </div>
+    {% endfor %}
+{% endblock %}

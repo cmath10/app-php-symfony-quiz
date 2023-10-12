@@ -1,0 +1,24 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Quiz app | Sign up{% endblock %}
+
+{% block body %}
+    <h1 class="my-3">Sign up</h1>
+
+    {{ form_errors(form) }}
+
+    {{ form_start(form) }}
+
+    <div class="row">
+        <div class="col col-4">
+            {{ form_row(form.nickname, { attr: { class: 'mb-3' } }) }}
+            {{ form_row(form.plainPassword, { attr: { class: 'mb-3' } }) }}
+
+            <button class="btn btn-lg btn-primary">
+                Sign up
+            </button>
+        </div>
+    </div>
+
+    {{ form_end(form) }}
+{% endblock %}

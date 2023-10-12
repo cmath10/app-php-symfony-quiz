@@ -1,0 +1,82 @@
+version: '3.8'
+
+services:
+  nginx:
+    image: openresty/openresty:alpine
+    ports:
+      - "3000:80"
+    volumes:
+      - ./:/var/www/app
+      - ./docker/services/nginx/conf.d:/etc/nginx/conf.d
+      - ./docker/services/nginx/nginx.conf:/etc/nginx/nginx.conf
+    links:
+      - php
+
+  php:
+    build: docker/services/php
+    environment:
+      APP_DEBUG: 1
+      APP_ENV: dev
+      PHP_IDE_CONFIG: "serverName=app-php-symfony-quiz"
+      XDEBUG_CONFIG: ${XDEBUG_CONFIG}
+    volumes:
+      - ./:/var/www/app
+      - ./docker/services/php/php.ini:/usr/local/etc/php/conf.d/docker-php-override.ini
+      - ./docker/services/php/www.conf:/usr/local/etc/php-fpm.d/www.conf
+      - $SSH_AUTH_SOCK:/ssh-auth.sock
+
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: dev
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: 1
+    ports:
+      - "3001:5432"
+    volumes:
+      - ./docker/services/postgres:/docker-entrypoint-initdb.d
+      - ./docker/data/postgres:/var/lib/postgresql/data
+
+  postgres-test:
+    image: postgres:15-alpine
+    command: [
+      postgres,
+      -c, 'autovacuum=off',
+      -c, 'fsync=off',
+      -c, 'full_page_writes=off',
+      -c, 'shared_buffers=512MB',
+      -c, 'wal_buffers=32MB',
+      -c, 'max_connections=256',
+      -c, 'max_locks_per_transaction=256',
+    ]
+    environment:
+      POSTGRES_DB: test
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: 1
+    ports:
+      - "3002:5432"
+    volumes:
+      - ./docker/services/postgres:/docker-entrypoint-initdb.d
+    tmpfs: /var/lib/postgresql/data
+
+  node:
+    image: node:18
+    user: node
+    working_dir: /var/www/app
+    volumes:
+      - ./:/var/www/app
+      - $SSH_AUTH_SOCK:/ssh-auth.sock
+
+  selenium-hub:
+    image: selenium/hub:3.141.59-bismuth
+    environment:
+      - GRID_MAX_SESSION=8
+      - GRID_TIMEOUT=60000
+      - GRID_BROWSER_TIMEOUT=120
+
+  selenium-chrome:
+    image: selenium/node-chrome:3.141.59-bismuth
+    shm_size: 2gb
+    environment:
+      - HUB_PORT_4444_TCP_ADDR=selenium-hub
+      - HUB_PORT_4444_TCP_PORT=4444
