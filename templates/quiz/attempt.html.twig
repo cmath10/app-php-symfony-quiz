@@ -19,100 +19,33 @@
     {% endif %}
 
     <p>
-        Time left:
-        <time id="countdown" datetime="{{ attempt.startedAt | date('Y-m-d\\TH:i:sP') }}">
-            {{ attempt | time_left }}
-        </time>
+        {% if not attempt.finished %}
+            Time left:
+            <time id="countdown" datetime="{{ attempt.startedAt | date('Y-m-d\\TH:i:sP') }}">
+                {{ attempt | time_left }}
+            </time>
+        {% else %}
+            Finished in {{ attempt | time_elapsed }}
+        {% endif %}
     </p>
 
     <form id="quiz" method="post">
         {# @var question \App\Persistence\Entity\Question #}
         {% for question in quiz.questions %}
-            <div class="card text-dark bg-light mb-3">
+            <div aria-labelledby="question-{{ question.id }}" class="card text-dark bg-light mb-3">
                 <div class="card-body">
-                    <h5 class="card-title">{{ question.text }}</h5>
+                    <h5 id="question-{{ question.id }}" class="card-title">{{ question.text }}</h5>
                     <div class="card-text">
                         {% if attempt.finished %}
-                            <div class="row">
-                                <div class="col">
-                                    <span
-                                        class="badge {{ attempt.answeredCorrectly(question) ? 'bg-success' : 'bg-danger' }}"
-                                    >
-                                        Your answer
-                                    </span>
-                                </div>
-
-                                <div class="col">
-                                    <span class="badge bg-success">Correct answer</span>
-                                </div>
-                            </div>
-
-                            <div class="row">
-                                <div class="col">
-                                    {# @var variant \App\Persistence\Entity\Variant #}
-                                    {% for variant in question.variants %}
-                                        <div class="form-check">
-                                            <input
-                                                id="variant-{{ variant.id }}-attempt"
-                                                type="checkbox"
-                                                class="form-check-input"
-                                                {% if attempt.hasVariant(variant) %}checked="checked"{% endif %}
-                                                disabled="disabled"
-                                            >
-
-                                            <label
-                                                for="variant-{{ variant.id }}-attempt"
-                                                class="form-check-label {% if attempt.hasVariant(variant) and not variant.correct %}text-danger{% endif %}"
-                                                style="opacity: 1"
-                                            >
-                                                {{ variant.text }}
-                                            </label>
-                                        </div>
-                                    {% endfor %}
-                                </div>
-
-                                <div class="col">
-                                    {# @var variant \App\Persistence\Entity\Variant #}
-                                    {% for variant in question.variants %}
-                                        <div class="form-check">
-                                            <input
-                                                id="variant-{{ variant.id }}-correct"
-                                                type="checkbox"
-                                                class="form-check-input"
-                                                {% if variant.correct %}checked="checked"{% endif %}
-                                                disabled="disabled"
-                                            >
-
-                                            <label
-                                                for="variant-{{ variant.id }}-correct"
-                                                class="form-check-label {{ variant.correct ? 'text-success' : 'text-muted' }}"
-                                                style="opacity: 1"
-                                            >
-                                                {{ variant.text }}
-                                            </label>
-                                        </div>
-                                    {% endfor %}
-                                </div>
-                            </div>
+                            {% include 'quiz/attempt/question-answered.html.twig' with {
+                                attempt: attempt,
+                                question: question,
+                            } %}
                         {% else %}
-                            {# @var variant \App\Persistence\Entity\Variant #}
-                            {% for variant in question.variants %}
-                                <div class="form-check">
-                                    <input
-                                        id="variant-{{ variant.id }}"
-                                        type="checkbox"
-                                        name="questions[{{ question.id }}][]"
-                                        value="{{ variant.id }}"
-                                        class="form-check-input"
-                                        {% if attempt.hasVariant(variant) %}checked="checked"{% endif %}
-                                        {% if attempt.outdated %}disabled="disabled"{% endif %}
-                                    >
-
-                                    <label class="form-check-label" for="variant-{{ variant.id }}">
-                                        {{ variant.text }}
-                                    </label>
-                                </div>
-                            {% endfor %}
+                            {% include 'quiz/attempt/question-to-answer.html.twig' with {
+                                attempt: attempt,
+                                question: question,
+                            } %}
                         {% endif %}
                     </div>
                 </div>
@@ -133,25 +66,31 @@
 {% block javascripts %}
     {{ parent() }}
     <script type="text/javascript">
+        const pad = value => value < 10 ? '0' + value : '' + value
         const MINUTES_MAXIMUM = 15
 
-        /** @type {HTMLTimeElement} */
-        const countdown = document.getElementById('countdown')
-        const startedAt = new Date(countdown.dateTime)
-        const pad = value => value < 10 ? '0' + value : '' + value
+        document.addEventListener('DOMContentLoaded', () => {
+            /** @type {HTMLTimeElement} */
+            const countdown = document.getElementById('countdown')
+            if (countdown) {
+                const startedAt = new Date(countdown.dateTime)
 
-        setInterval(() => {
-            const total = Math.floor((Date.now() - startedAt.getTime()) / 1000)
-            const minutes = Math.floor(total / 60)
-            const seconds = Math.floor(total - minutes * 60)
+                setInterval(() => {
+                    const total = Math.floor((Date.now() - startedAt.getTime()) / 1000)
+                    const minutes = Math.floor(total / 60)
+                    const seconds = Math.floor(total - minutes * 60)
 
-            if (minutes < MINUTES_MAXIMUM) {
-                countdown.innerHTML = pad(MINUTES_MAXIMUM - minutes - 1) + ':' + pad(59 - seconds)
-            } else {
-                countdown.innerHTML = '00:00'
-                countdown.classList.toggle('text-danger', true)
-                document.querySelectorAll('#quiz input, #quiz button').forEach(input => input.setAttribute('disabled', 'disabled'))
+                    if (minutes < MINUTES_MAXIMUM) {
+                        countdown.innerHTML = pad(MINUTES_MAXIMUM - minutes - 1) + ':' + pad(59 - seconds)
+                    } else {
+                        countdown.innerHTML = '00:00'
+                        countdown.classList.toggle('text-danger', true)
+                        document.querySelectorAll('#quiz input, #quiz button').forEach(input => {
+                            input.setAttribute('disabled', 'disabled');
+                        })
+                    }
+                }, 1000)
             }
-        }, 1000)
+        })
     </script>
 {% endblock %}

@@ -1,0 +1,31 @@
+{# @var attempt \App\Persistence\Entity\Attempt #}
+{# @var question \App\Persistence\Entity\Question #}
+
+<div class="row">
+    <div class="col">
+        <span class="badge {{ attempt.answeredCorrectly(question) ? 'bg-success' : 'bg-danger' }}">
+            Your answer
+        </span>
+    </div>
+
+    <div class="col">
+        <span class="badge bg-success">
+            Correct answer
+        </span>
+    </div>
+</div>
+
+<div class="row">
+    <div role="group" class="col">
+        {% include 'quiz/attempt/answer-attempt.html.twig' with {
+            attempt: attempt,
+            question: question,
+        } %}
+    </div>
+
+    <div role="group" class="col">
+        {% include 'quiz/attempt/answer-correct.html.twig' with {
+            question: question,
+        } %}
+    </div>
+</div>

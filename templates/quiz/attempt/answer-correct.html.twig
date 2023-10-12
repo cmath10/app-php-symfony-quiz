@@ -1,0 +1,21 @@
+{# @var question \App\Persistence\Entity\Question #}
+{# @var variant \App\Persistence\Entity\Variant #}
+{% for variant in question.variants %}
+    <div class="form-check">
+        <input
+            id="variant-{{ variant.id }}-correct"
+            type="checkbox"
+            class="form-check-input"
+            {% if variant.correct %}checked="checked"{% endif %}
+            disabled="disabled"
+        >
+
+        <label
+            for="variant-{{ variant.id }}-correct"
+            class="form-check-label {{ variant.correct ? 'text-success' : 'text-muted' }}"
+            style="opacity: 1"
+        >
+            {{ variant.text }}
+        </label>
+    </div>
+{% endfor %}

@@ -53,6 +53,7 @@
         "codeception/module-cli": "^2.0",
         "codeception/module-db": "^3.1",
         "codeception/module-doctrine2": "^3.0",
+        "codeception/module-phpbrowser": "^3.0",
         "codeception/module-symfony": "^3.1",
         "codeception/module-webdriver": "^4.0",
         "roave/security-advisories": "dev-latest",
@@ -85,6 +86,7 @@
         "psr-4": {
             "App\\Tests\\Data\\": "tests/_data",
             "App\\Tests\\Infrastructure\\": "tests/_support",
+            "App\\Tests\\_generated\\": "tests/_support/_generated",
             "App\\Tests\\Acceptance\\": "tests/acceptance",
             "App\\Tests\\Functional\\": "tests/functional",
             "App\\Tests\\Unit\\": "tests/unit"

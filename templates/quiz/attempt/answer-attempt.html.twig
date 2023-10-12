@@ -1,0 +1,23 @@
+{# @var attempt \App\Persistence\Entity\Attempt #}
+{# @var question \App\Persistence\Entity\Question #}
+
+{# @var variant \App\Persistence\Entity\Variant #}
+{% for variant in question.variants %}
+    <div class="form-check">
+        <input
+            id="variant-{{ variant.id }}-attempt"
+            type="checkbox"
+            class="form-check-input"
+            {% if attempt.hasVariant(variant) %}checked="checked"{% endif %}
+            disabled="disabled"
+        >
+
+        <label
+            for="variant-{{ variant.id }}-attempt"
+            class="form-check-label {% if attempt.hasVariant(variant) and not variant.correct %}text-danger{% endif %}"
+            style="opacity: 1"
+        >
+            {{ variant.text }}
+        </label>
+    </div>
+{% endfor %}
