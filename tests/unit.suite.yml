@@ -1,9 +1,7 @@
-# Codeception Test Suite Configuration
-#
-# Suite for unit or integration tests.
-
+namespace: App\Tests\Infrastructure
+suite_namespace: App\Tests\Unit
 actor: UnitTester
 modules:
     enabled:
         - Asserts
-        - \App\Tests\Helper\Unit
+        - \App\Tests\Infrastructure\Module\Unit

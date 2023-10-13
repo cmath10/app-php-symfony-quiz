@@ -1,0 +1,4 @@
+services:
+    app.security.helper: ## Hack for codeception
+        alias: 'security.helper'
+        public: true

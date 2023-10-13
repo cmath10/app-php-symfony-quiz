@@ -1,17 +1,22 @@
-# Codeception Test Suite Configuration
-#
-# Suite for functional tests
-# Emulate web requests and make application process them
-# Include one of framework modules (Symfony2, Yii2, Laravel5) to use it
-# Remove this suite if you don't use frameworks
-
+namespace: App\Tests\Infrastructure
+suite_namespace: App\Tests\Functional
 actor: FunctionalTester
 modules:
     enabled:
+        - Asserts
         - Symfony:
-            app_path: 'src'
-            environment: 'test'
-#        - Doctrine2:
-#            depends: Symfony
-#            cleanup: true
-        - \App\Tests\Helper\Functional
+            app_path: src
+            environment: test
+            part: services
+        - Doctrine2:
+            depends: Symfony
+            cleanup: false
+        - Cli
+        - WebDriver:
+            url: 'http://nginx-test/'
+            browser: chrome
+            host: selenium-hub
+        - \App\Tests\Infrastructure\Module\Functional
+extensions:
+    enabled:
+        - App\Tests\Infrastructure\Extension\DatabaseMigrationExtension

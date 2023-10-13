@@ -48,6 +48,10 @@ final class QuizController extends AbstractController
             'nickname' => $this->getUser()?->getUserIdentifier(),
         ]);
 
+        if (null == $quiz) {
+            throw $this->createNotFoundException(\sprintf('Quiz with ID=%s not found', $id));
+        }
+
         $lastAttempt = $this->em->getRepository(Attempt::class)->findOneBy([
             'quiz' => $quiz,
             'user' => $user,

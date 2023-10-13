@@ -30,9 +30,9 @@ final class UserController extends AbstractController
     #[Route('/sign-in', name: self::SIGN_IN_ROUTE)]
     public function signIn(AuthenticationUtils $utils): Response
     {
-         if ($this->getUser()) {
-             return $this->redirectToRoute(QuizController::QUIZ_LIST_ROUTE);
-         }
+        if ($this->getUser()) {
+            return $this->redirectToRoute(QuizController::QUIZ_LIST_ROUTE);
+        }
 
         return $this->render('user/sign-in.html.twig', [
             'last_username' => $utils->getLastUsername(),
